@@ -21,7 +21,7 @@ class ApiServiceProducts {
   ApiServiceProducts({Dio? dio})
       : _dio = dio ??
             Dio(BaseOptions(
-              baseUrl: 'https://dummyjson.com',
+              baseUrl: 'http://192.168.1.4:8080',
               connectTimeout: const Duration(seconds: 15),
               receiveTimeout: const Duration(seconds: 15),
               headers: {'Content-Type': 'application/json'},
@@ -53,7 +53,8 @@ class ApiServiceProducts {
   }
 
   /// Endpoint 4: GET /products?limit=10&skip=10&select=title,price
-  Future<ProductsResponse> getProductsPaginated({int limit = 10, int skip = 0, String? select}) =>
+  Future<ProductsResponse> getProductsPaginated(
+          {int limit = 10, int skip = 0, String? select}) =>
       getAllProducts(limit: limit, skip: skip, select: select);
 
   /// Endpoint 5: GET /products?sortBy=title&order=asc
@@ -64,7 +65,12 @@ class ApiServiceProducts {
     int skip = 0,
     String? select,
   }) =>
-      getAllProducts(limit: limit, skip: skip, select: select, sortBy: sortBy, order: order);
+      getAllProducts(
+          limit: limit,
+          skip: skip,
+          select: select,
+          sortBy: sortBy,
+          order: order);
 
   /// Endpoint 2: GET /products/{id}
   Future<Product> getProduct(int id) {
@@ -82,7 +88,7 @@ class ApiServiceProducts {
   }) {
     return _guard(() async {
       final res = await _dio.get(
-        '/products/search',
+        '/products',
         queryParameters: {'q': query, 'limit': limit},
         cancelToken: cancelToken,
       );
@@ -169,7 +175,8 @@ class ApiServiceProducts {
     } on ApiException {
       rethrow;
     } catch (_) {
-      throw const ApiException('Data dari server tidak bisa dibaca. Coba lagi ya.');
+      throw const ApiException(
+          'Data dari server tidak bisa dibaca. Coba lagi ya.');
     }
   }
 
@@ -184,7 +191,8 @@ class ApiServiceProducts {
       case DioExceptionType.badResponse:
         final code = e.response?.statusCode ?? 0;
         if (code == 404) return 'Produk tidak ditemukan.';
-        if (code >= 500) return 'Server DummyJSON sedang bermasalah ($code).';
+        if (code >= 500) return 'Server sedang bermasalah ($code).';
+
         return 'Permintaan gagal (kode $code).';
       default:
         return 'Terjadi kesalahan jaringan. Coba lagi ya.';
